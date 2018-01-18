@@ -557,8 +557,13 @@ class Redis
                 @sentinels.unshift(sentinel)
 
                 return result
+              else
+                Raven.capture_message("sentinel responded with falsey: #{result.inspect}\nsentinel_config: #{sentinel.inspect}")
+                nil
               end
-            rescue BaseConnectionError
+            rescue BaseConnectionError => e
+              Raven.capture_message("connection to sentinel failed: #{e.inspect}\ncaused by: #{e.cause.inspect}")
+              nil
             ensure
               client.disconnect
             end
